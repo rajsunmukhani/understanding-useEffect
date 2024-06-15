@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from '../Helpers/axios';
 
 const About = () => {
@@ -13,6 +13,17 @@ const About = () => {
         console.log(error);
     }
   }
+
+  useEffect(() => {
+    console.log('mounted')
+    if(!posts) getPosts();
+    return () => {
+      // alert('do you want to leave this page')
+      console.log('unmounted');
+    }
+  },[posts]);
+
+  // console.log('loaded')
 
   return (
     <div>

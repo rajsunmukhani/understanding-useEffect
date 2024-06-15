@@ -1,77 +1,113 @@
-1. Now let us understand what if we want to use Axios in files, we have to apply Axios each time to each file to use it which will make extra amount of code, thus making programme more heavy.
+Project from Folder No. 16.making the use of API and Axios.
 
-to use axios in Users.jsx file, we will first make a function as : 
+Now, we want to call the API without clicking the button, for this we have to make the use of *useEffect*.
 
-    1. *npm i axios --save* using this code on terminal install axios in our programme
+1. There are basically three steps which react undergoes with a page viz. 
+    a. Mounting (Creation)
+    b. Updation
+    c. Unmounting (Deletion)
 
-    2. *const getUsers = async() => {
-            try{
-                const x = await axios.get("");
-            }catch(error){
-                console.log(error);
+2. when we go from Home page to About page in our programme we gennerally make the process undergo named *Mounting of About page*, and *Unmounting of Home page* also, when we click the button on About page we make *updation of About page* undergo.
+
+3. Now, useEffect is the pre-determined hook in react which helps us to make changes work at the time of mounting and unmounting.
+
+4. whnever we use useEffect with an array it means that it will work on both on mounting, as well as on updation, as we know that mounting is done only once, so, the code written inside useEffect will work on updation also.
+
+    useEffect with array is as :
+        useEffect(() => {
+            *code for mounting*
+        },[*code for updation*]);
+
+5. Now, if we want that if there is change in state (variables of react) of our page we want to reload the whole page, so we will write the name of state in square brackets of useEffect.
+
+    as before writing it the code was : 
+
+        useEffect(() => {
+            console.log("mounted");
+        },[]);
+
+        This was returning:
+            loaded
+            mounted
+        for once and after that only :
+            loaded
+
+    now if we write the name of state which on change refreshes the whole page:
+
+        useEffect(() => {
+            console.log("mounted");
+        },[posts]);
+
+        now whenever the page reloads it will return:
+            loaded 
+            mounted
+        and whenever the post state changes it will relaod the page and thus again returning : 
+            loaded
+            mounted
+
+6. Now we will be writing code for unmounting which is written at the place of mounting in useEffect but after *return tag* and as a function as :
+
+        useEffect(() => {
+            *code for mounting*.
+
+            return () => {
+                *code for unmounting*
+            }   
+
+        },[*code for updation*]);
+
+7. now to make it automated so that no requirement of client is required to click on submit button will look as : 
+
+        useEffect(() => {
+            console.log("mounted!")
+            getposts();
+            return() => {
+                console.log("unmounted!");
             }
-        }*
+        },[]);
 
-3. Now we want dummy data to test our programme for that we will use *JSON Placeholder* an API which gives us data of 10 dummy users, to test our programme.
+8. Now we want that on change of state of post we want to re-render the page for that the code will be :
 
-4. simply copy the url of JSON file holding data and pass it inside the axios.get as :
-
-        const getUsers = async() => {
-            try{
-                const x = await axios.get(" *url* ");
-                console.log(x);
-            }catch(error){
-                console.log(error);
+        useEffect(() => {
+            console.log("mounted!")
+            getposts();
+            return() => {
+                console.log("unmounted!");
             }
+        },[posts]);
+
+but, this will create an infinite loop as whenever posts value gets updated it re-renders the page and mounting is done which call getPosts and this function simply updates the value in posts state, which again get updated and re-renders the page and goes on.
+
+To solve this problem, we will use conditionals as:
+
+10.     useEffect(() => {
+
+            console.log("mounted!")
+            if(!posts) getposts();
+            return() => {
+                console.log("unmounted!");
+            }
+
+        },[posts]);
+
+        problem fixed!
+
+Now, what is above funtion doing?
+
+    it simply at first when we open the about page, it mounts the whole page, and runs useEffect now as useEffect ran it will check if there is any value in posts or not, if not, it will call getPosts() function which will update posts state value, now as we have written in square brackets name of state posts, therefore it will get enabled as posts value is changed due to getPosts() function, and re-render the page, which will first unmount whole page, then again mount whole page:
+    Hence the process goes like : 
+
+    mounted!
+    unmounted!
+    mounted!
+
+11. Now, we can also give a alert at the time of unmounting to user, that if he wants to leave the page? as : 
+
+    useEffect(() => {
+        console.log('mounted')
+        if(!posts) getPosts();
+        return () => {
+            alert('do you want to leave this page')
+            console.log('unmounted');
         }
-
-5. Now, we have to call the function for it to make work, for that we will delete the old form and its inside content, instead on thing, the submit button, and rename tha value of submit button as get users, and make a onClick call passing refrence of the function.
-
-6. Now, we can see that we will get data, by clicking on the button with value get user, on console. But the data is arranged in a deep object, which is a lengthy way if we want to make the use of data, so simply destructure it by renaming *x* as *{data}*.
-
-7. Now, copy the same function in About.jsx page and make the useful data import.
-    Simply copy everything that user is rendering and paste it inside About views section in place of  *About*, and update users to post accordingly as we'll be rendering posts here.
-
-8. Now, here we can see that we have to use the axios twice in both the pages, which makes increases code intensity in a programme as we make some bigger websites or projects, For that we have to make a single use of Axios at a place where both of them can have access to as well as both can share the data being a different components.
-
-9. for this we will make a folder named helpers/utils and inside it we will make a file named axios.jsx and inside it:  
-
-    *import axios from 'axios';
-
-    const instance = axios.create({
-        baseUrl: 'https://jsonplaceholder.typicode.com/'
-    });
-
-    export default instance;*
-
-as the code at end of url will differ as user or post accordingly, hence we use them as required but, rest of the same URL will be placed here as baseURL.
-
-10. Now simply update the import of axios in About.jsx and Users.jsx page and make it as :
-        import axios from '../helpers/axios'
-
-    And, also replace the whole link with just its end parts either */users* or */posts*.
-
-
-11. Now create a useState in 
-        a. Users.jsx named *const [users,setUsers] =  useState("");*
-        b. About.jsx named *const [posts,setPosts] =  useState("")*
-
-12. Apply condition statement in views area to show data as : 
-        a. in Users.jsx : 
-            *
-            <ul className='p-10 list-items'>
-                {users ? users.map((u) => (
-                        <li key={u.id} className='list-disc'>{u.name}</li>
-                )) : <h1 className='text-red-400'>loading...</h1> }
-            </ul>
-            *
-        b. in App.jsx : 
-            *
-             <ul className='p-10 list-items'>
-                {posts ? posts.map((p) => (
-                        <li key={p.id} className='list-disc'>{p.title}</li>
-                )) : <h1 className='text-red-400'>loading...</h1> }
-            </ul>
-            *
-
-13. Note : Remember to update console.log and replace it to set function of useState accordingly in both the files.
+    },[posts]);
